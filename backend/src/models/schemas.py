@@ -53,5 +53,3 @@ class HealthResponse(BaseModel):
 
 class DeleteResponse(BaseModel):
     deleted: str
-
-

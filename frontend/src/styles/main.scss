@@ -1,16 +1,18 @@
-// Variables
-$primary: #4fc3f7;
+$primary: #3b82f6;
 $white: #ffffff;
-$text-light: #b8c5d6;
-$glass: rgba(255, 255, 255, 0.08);
+$text-light: #8e8ea0;
+$text-dark: #ececf1;
+$bg-main: #212121;
+$bg-surface: #2f2f2f;
+$bg-input: #2e2f3f;
+$border-dark: #4d4d4f;
 
-// Reset & Base
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #e8e8e8;
-  background: linear-gradient(135deg, #0c1445 0%, #1a1a2e 50%, #16213e 100%);
+  color: $text-dark;
+  background: $bg-main;
   min-height: 100vh;
 }
 
@@ -33,7 +35,7 @@ body {
   }
 }
 
-// Utilities
+
 .loading-state, .empty-state {
   display: flex;
   align-items: center;
@@ -68,7 +70,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-// Component imports
 @import 'SearchBar';
 @import 'ImageGrid';
 @import 'Paginator';

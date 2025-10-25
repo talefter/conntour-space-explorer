@@ -95,8 +95,7 @@ class NASAService:
                 description=nasa_data.get('description', ''),
                 date_created=nasa_data.get('date_created', ''),
                 keywords=nasa_data.get('keywords', []),
-                preview_url=preview_url,
-                full_url=preview_url
+                preview_url=preview_url
             ))
         
         return images

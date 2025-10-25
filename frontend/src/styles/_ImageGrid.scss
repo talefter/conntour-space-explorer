@@ -3,15 +3,6 @@
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
-  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  // Prevent layout shift during loading
-  contain: layout style;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .image-card {
@@ -19,24 +10,17 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  animation: slideUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.3s ease;
   cursor: pointer;
   height: 335px;
 
   &:hover {
-    box-shadow: 0 20px 60px rgba($primary, 0.2), 0 0 0 1px rgba($primary, 0.3);
-    transform: translateY(-12px) scale(1.03);
-    
-    .image-card__image {
-      transform: scale(1.05);
-    }
+    transform: translateY(-8px);
   }
 
   &--loaded {
     .image-card__placeholder {
       opacity: 0;
-      pointer-events: none;
     }
     
     .image-card__image {
@@ -45,34 +29,14 @@
   }
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
 
-.image-card__image-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
 
 .image-card__image {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
+  transition: opacity 0.3s ease;
   opacity: 0;
-  
-  &[loading="lazy"] {
-    will-change: opacity;
-  }
 }
 
 .image-card__placeholder {
@@ -84,16 +48,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  background: rgba(255, 255, 255, 0.05);
   transition: opacity 0.3s ease;
-  z-index: 1;
 }
 
 .image-card__skeleton {
-  width: 60px;
-  height: 60px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid rgba($primary, 0.6);
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid $primary;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -110,18 +73,15 @@
   justify-content: center;
   background: rgba(0, 0, 0, 0.3);
   color: rgba(255, 255, 255, 0.7);
-  z-index: 1;
   
   span {
-    font-size: 32px;
+    font-size: 24px;
     margin-bottom: 8px;
-    opacity: 0.5;
   }
   
   p {
-    font-size: 14px;
+    font-size: 12px;
     margin: 0;
-    opacity: 0.7;
   }
 }
 
@@ -136,27 +96,19 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%);
-  z-index: 2;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .image-card__confidence {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: linear-gradient(135deg, $primary 0%, #29b6f6 100%);
+  background: $primary;
   color: $white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
   font-weight: 600;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 3;
-
-  .image-card:hover & {
-    transform: scale(1.1);
-  }
 }
 
 .image-card__content {
@@ -164,23 +116,18 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20px;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  padding: 16px;
 }
 
 .image-card__title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1.3;
   color: $white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
   margin: 0;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-

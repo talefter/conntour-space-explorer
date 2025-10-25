@@ -4,8 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(12, 20, 69, 0.9), rgba(26, 26, 46, 0.9));
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,10 +13,9 @@
 }
 
 .modal-content {
-  background: $glass;
-  backdrop-filter: blur(25px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: $bg-surface;
+  border-radius: 12px;
+  border: 1px solid $border-dark;
   position: relative;
   max-width: 1200px;
   width: 95vw;
@@ -43,11 +41,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 
   &:hover {
     background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
   }
 }
 
@@ -72,11 +69,8 @@
 .modal-image {
   max-width: 100%;
   max-height: 100%;
-  width: auto;
-  height: auto;
   object-fit: contain;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .modal-info-section {
@@ -104,7 +98,6 @@
 .modal-date {
   color: $text-light;
   font-size: 14px;
-  font-weight: 500;
 }
 
 .modal-description-container {
@@ -119,8 +112,6 @@
   font-size: 15px;
   line-height: 1.6;
   margin: 0;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
   overflow-y: auto;
   padding-right: 8px;
   
@@ -143,12 +134,11 @@
   }
 }
 
-// History Table Modal - Different backdrop
+
 .history-table-modal {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(46, 47, 63, 0.98);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   width: 90vw;
   max-width: 1000px;
@@ -156,13 +146,12 @@
   max-height: 700px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
-// Override backdrop for history modal only
+
 .modal-backdrop:has(.history-table-modal) {
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
 }
 
 .history-table-header {
@@ -170,21 +159,21 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 24px 28px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 0 0;
   flex-shrink: 0;
 
   .header-content {
     h2 {
-      color: #333;
+      color: $white;
       font-size: 22px;
       font-weight: 600;
       margin: 0 0 4px 0;
     }
 
     p {
-      color: #666;
+      color: $text-light;
       font-size: 14px;
       margin: 0;
     }
@@ -194,23 +183,23 @@
 .history-table-content {
   flex: 1;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.98);
+  background: transparent;
   display: flex;
   flex-direction: column;
 }
 
 .history-table-footer {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 16px 28px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 0 0 16px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 12px 12px;
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   .pagination-info {
-    color: #666;
+    color: $text-light;
     font-size: 13px;
   }
 
@@ -222,7 +211,7 @@
 .loading-state, .error-message {
   padding: 60px 28px;
   text-align: center;
-  color: #666;
+  color: $text-light;
   font-size: 16px;
   flex: 1;
   display: flex;
@@ -233,7 +222,7 @@
 .empty-state {
   padding: 80px 28px;
   text-align: center;
-  color: #666;
+  color: $text-light;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -246,7 +235,7 @@
   }
 
   h3 {
-    color: #333;
+    color: $white;
     margin-bottom: 8px;
     font-size: 18px;
   }
@@ -275,11 +264,11 @@
   grid-template-columns: 1fr 140px 100px 80px;
   gap: 16px;
   padding: 16px 28px;
-  background: rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   flex-shrink: 0;
@@ -288,19 +277,41 @@
 .table-body {
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($primary, 0.6) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    margin: 4px 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary, 0.6);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      background: rgba($primary, 0.8);
+    }
+  }
 
   .table-row {
     display: grid;
     grid-template-columns: 1fr 140px 100px 80px;
     gap: 16px;
     padding: 12px 28px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
     transition: all 0.2s ease;
     align-items: center;
 
     &:hover {
-      background: rgba(79, 195, 247, 0.08);
+      background: rgba($primary, 0.1);
     }
 
     &:last-child {
@@ -315,12 +326,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(46, 47, 63, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  backdrop-filter: blur(2px);
 }
 
 .loading-spinner {
@@ -339,7 +349,7 @@
 
 .col-query {
   .query-text {
-    color: #333;
+    color: $text-dark;
     font-size: 13px;
     font-weight: 500;
     overflow: hidden;
@@ -349,12 +359,12 @@
 }
 
 .col-date {
-  color: #666;
+  color: $text-light;
   font-size: 12px;
 }
 
 .col-results {
-  color: #666;
+  color: $text-light;
   font-size: 12px;
 }
 
@@ -371,12 +381,11 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease;
   opacity: 0.6;
 
   &:hover {
     opacity: 1;
-    transform: scale(1.1);
   }
 
   &.view-btn:hover {

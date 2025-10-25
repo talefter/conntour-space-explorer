@@ -33,8 +33,21 @@ build/
 *.egg-info/
 
 # Runtime data
-backend/data/
+backend/data/cache.json
+backend/data/history.json
 *.log
+
+# Frontend build artifacts
+frontend/dist/
+frontend/.vite/
+frontend/node_modules/
+
+# Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache/
 
 # Environment variables
 .env
