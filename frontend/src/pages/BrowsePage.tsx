@@ -16,6 +16,7 @@ export const BrowsePage: React.FC = () => {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [query, setQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
 
   const isSearchMode = !!searchData;
   const currentData = searchData || browseData;
@@ -80,6 +81,10 @@ export const BrowsePage: React.FC = () => {
     handleSearch(selectedQuery, 1);
   };
 
+  const handleHistoryChange = () => {
+    setHistoryRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="page">
       <div className="page-header">
@@ -93,6 +98,7 @@ export const BrowsePage: React.FC = () => {
           isLoading={loading}
           initialValue={query}
           onQueryChange={setQuery}
+          refreshKey={historyRefreshKey}
         />
         
         {searchData && !loading && (
@@ -121,6 +127,7 @@ export const BrowsePage: React.FC = () => {
         isOpen={showHistoryModal}
         onClose={() => setShowHistoryModal(false)}
         onSelectQuery={handleHistorySelect}
+        onHistoryChange={handleHistoryChange}
       />
     </div>
   );

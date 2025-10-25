@@ -9,9 +9,10 @@ interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectQuery: (query: string) => void;
+  onHistoryChange?: () => void;
 }
 
-export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onSelectQuery }) => {
+export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onSelectQuery, onHistoryChange }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isChangingPage, setIsChangingPage] = useState(false);
   
@@ -38,6 +39,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
     try {
       await api.deleteHistory(historyId);
       loadHistory(currentPage);
+      onHistoryChange?.();
     } catch (error) {
       console.error('Failed to delete entry:', error);
     }

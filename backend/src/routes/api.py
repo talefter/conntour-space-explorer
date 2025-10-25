@@ -39,6 +39,13 @@ async def ensure_search_initialized():
             all_images_cache = cached
             search_service.build_index(cached)
             print(f"Search initialized with {len(cached)} cached images")
+        else:
+            # No cache - load first page immediately
+            initial_images = await nasa_service.fetch_page(1, 100)
+            if initial_images:
+                all_images_cache = initial_images
+                search_service.build_index(initial_images)
+                print(f"Loaded {len(initial_images)} initial images")
         
         # Start background loading
         if not _background_loading:
@@ -52,21 +59,22 @@ async def load_all_images():
         all_images = []
         for page in range(1, 101):  # Load 10,000 images
             images = await nasa_service.fetch_page(page, 100)
+            if not images:
+                break
             all_images.extend(images)
             await asyncio.sleep(0.05)
             
-            # Update cache every 10 pages but keep search index stable
+            # Update cache every 10 pages
             if page % 10 == 0:
                 all_images_cache = all_images.copy()
+                search_service.build_index(all_images_cache)
                 print(f"Background loaded {len(all_images)} images...")
         
-        # Final update - only rebuild search index once at the end
+        # Final update
         all_images_cache = all_images
         search_service.build_index(all_images_cache)
-        
-        # Save to main cache
         nasa_service._save_to_cache(all_images)
-        print(f"Background loading complete: {len(all_images)} images - Search updated!")
+        print(f"Background loading complete: {len(all_images)} images")
         
     except Exception as e:
         print(f"Background loading failed: {e}")
