@@ -10,7 +10,7 @@ class SearchService:
     def __init__(self):
         self.bm25 = None
         self.images = []
-        self._stop_words = frozenset({'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by'})
+        self._stop_words = frozenset({'the', 'a', 'an', 'and'})
     
     def build_index(self, images: List[ImageItem]) -> None:
         """Build BM25 search index using rank-bm25 library."""
@@ -66,13 +66,13 @@ class SearchService:
     
     def _tokenize(self, image: ImageItem) -> List[str]:
         """Extract and tokenize text from image metadata."""
-        text_parts = image.keywords.copy()
+        text_parts = image.keywords * 2  # Double weight for keywords
         
         if image.title:
-            text_parts.append(image.title)
+            text_parts.extend([image.title] * 2)  # Double weight for title
         
-        if image.description and len(image.description) < 200:
-            text_parts.append(image.description)
+        if image.description:
+            text_parts.append(image.description)  # Include full description
         
         return self._normalize(" ".join(text_parts))
     
@@ -82,7 +82,7 @@ class SearchService:
             return []
         
         tokens = re.findall(r'[a-z0-9]+', text.lower())
-        return [t for t in tokens if t not in self._stop_words and len(t) > 1]
+        return [t for t in tokens if t not in self._stop_words and (len(t) > 1 or t.isdigit())]
     
     def _boost_score(self, query: str, image: ImageItem, base_score: float) -> float:
         """Apply custom relevance boosts."""

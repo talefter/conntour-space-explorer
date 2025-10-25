@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ImageItem } from '../../types';
-import { ImageCard } from '../ImageCard';
-import { ImageModal } from '../ImageModal';
+import type { ImageItem } from '../types';
+import { ImageCard } from './ImageCard';
+import { ImageModal } from './ImageModal';
+import { Spinner } from './Spinner';
 
 
 interface ImageGridProps {
@@ -24,7 +25,7 @@ export const ImageGrid: React.FC<ImageGridProps> = ({
   }
 
   if (loading) {
-    return <div className="loading-state">Loading images...</div>;
+    return <Spinner text="Loading images..." />;
   }
 
   if (images.length === 0) {

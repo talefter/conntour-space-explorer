@@ -4,96 +4,81 @@ import { ImageGrid } from '../components/ImageGrid';
 import { SearchBar } from '../components/SearchBar';
 import { HistoryModal } from '../components/HistoryModal';
 import { Paginator } from '../components/Paginator';
-import { ImageItem, SearchResult, PaginatedImages, PaginatedSearchResult } from '../types';
+import type { PaginatedImages, PaginatedSearchResult } from '../types';
+
+const PAGE_SIZE = 20;
 
 export const BrowsePage: React.FC = () => {
-  const [paginatedImages, setPaginatedImages] = useState<PaginatedImages | null>(null);
-  const [searchResult, setSearchResult] = useState<PaginatedSearchResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [browseData, setBrowseData] = useState<PaginatedImages | null>(null);
+  const [searchData, setSearchData] = useState<PaginatedSearchResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [currentSearchQuery, setCurrentSearchQuery] = useState('');
+  const [query, setQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 20;
 
-  // Listen for history modal open event
+  const isSearchMode = !!searchData;
+  const currentData = searchData || browseData;
+  const totalPages = currentData ? Math.ceil(currentData.total / PAGE_SIZE) : 0;
+
   useEffect(() => {
     const handleOpenHistoryModal = () => setShowHistoryModal(true);
     window.addEventListener('openHistoryModal', handleOpenHistoryModal);
     return () => window.removeEventListener('openHistoryModal', handleOpenHistoryModal);
   }, []);
 
-  // Load images when page changes
   useEffect(() => {
-    if (!searchResult) {
-      loadImages(currentPage);
-    }
-  }, [currentPage, searchResult]);
+    if (!isSearchMode) loadBrowseData(currentPage);
+  }, [currentPage, isSearchMode]);
 
-  const loadImages = async (page: number) => {
+  const loadBrowseData = async (page: number) => {
     try {
       setLoading(true);
       setError('');
-      const data = await api.getSources(page, pageSize);
-      setPaginatedImages(data);
+      const data = await api.getSources(page, PAGE_SIZE);
+      setBrowseData(data);
     } catch (err) {
       setError('Failed to load images');
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = async (query: string, page = 1) => {
-    const trimmedQuery = query.trim();
-    
+  const handleSearch = async (searchQuery: string, page = 1) => {
     try {
-      setSearchLoading(true);
+      setLoading(true);
       setError('');
-      const result = await api.search(trimmedQuery, page, pageSize);
-      setSearchResult(result);
-      setPaginatedImages(null);
+      const result = await api.search(searchQuery, page, PAGE_SIZE);
+      setSearchData(result);
       setCurrentPage(page);
     } catch (err) {
       setError('Search failed');
-      setSearchResult(null);
-      console.error(err);
     } finally {
-      setSearchLoading(false);
+      setLoading(false);
     }
   };
 
-  const clearSearch = () => {
-    setSearchResult(null);
-    setCurrentSearchQuery('');
+  const clearSearch = async () => {
+    setLoading(true);
+    setSearchData(null);
+    setQuery('');
     setCurrentPage(1);
-    loadImages(1);
-  };
-
-  const handleHistorySelect = (query: string) => {
-    setCurrentSearchQuery(query);
-    handleSearch(query, 1);
+    await loadBrowseData(1);
   };
 
   const handlePageChange = (page: number) => {
-    if (searchResult) {
-      // Search pagination
-      handleSearch(currentSearchQuery, page);
+    if (isSearchMode) {
+      handleSearch(query, page);
     } else {
-      // Browse pagination
       setCurrentPage(page);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const displayImages = searchResult ? searchResult.items : (paginatedImages?.items || []);
-  const displayScores = searchResult ? searchResult.scores : undefined;
-  const isSearching = searchLoading;
-  const isLoading = loading && !searchResult;
-  const totalPages = searchResult 
-    ? Math.ceil(searchResult.total / pageSize) 
-    : (paginatedImages ? Math.ceil(paginatedImages.total / pageSize) : 0);
+  const handleHistorySelect = (selectedQuery: string) => {
+    setQuery(selectedQuery);
+    handleSearch(selectedQuery, 1);
+  };
 
   return (
     <div className="page">
@@ -105,26 +90,26 @@ export const BrowsePage: React.FC = () => {
         <SearchBar 
           onSearch={handleSearch} 
           onClear={clearSearch} 
-          isLoading={isSearching}
-          initialValue={currentSearchQuery}
-          onQueryChange={setCurrentSearchQuery}
+          isLoading={loading}
+          initialValue={query}
+          onQueryChange={setQuery}
         />
         
-        {searchResult && (
+        {searchData && !loading && (
           <div className="search-info">
-            <span>Found {searchResult.total} results for "{searchResult.query}" (showing {searchResult.items.length} on page {searchResult.page})</span>
+            Found {searchData.total} results for "{searchData.query}"
           </div>
         )}
       </div>
-
+      
       <ImageGrid
-        images={displayImages}
-        scores={displayScores}
-        loading={isLoading || isSearching}
+        images={currentData?.items || []}
+        scores={searchData?.scores}
+        loading={loading}
         error={error || undefined}
       />
       
-      {(paginatedImages || searchResult) && totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Paginator
           currentPage={currentPage}
           totalPages={totalPages}

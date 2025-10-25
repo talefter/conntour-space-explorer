@@ -1,19 +1,12 @@
 import React from 'react';
 
-
 interface PaginatorProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
 
-export const Paginator: React.FC<PaginatorProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}) => {
-  if (totalPages <= 1) return null;
-
+export const Paginator: React.FC<PaginatorProps> = ({ currentPage, totalPages, onPageChange }) => {
   const getVisiblePages = () => {
     const maxVisible = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
@@ -23,34 +16,28 @@ export const Paginator: React.FC<PaginatorProps> = ({
       startPage = Math.max(1, endPage - maxVisible + 1);
     }
 
-    const pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
+    return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
   };
 
   const visiblePages = getVisiblePages();
+  const firstVisible = visiblePages[0];
+  const lastVisible = visiblePages[visiblePages.length - 1];
+  const isDisabled = totalPages <= 1;
 
   return (
     <div className="paginator">
       <button
         className="paginator__btn"
-        disabled={currentPage === 1}
+        disabled={currentPage === 1 || isDisabled}
         onClick={() => onPageChange(currentPage - 1)}
       >
         Previous
       </button>
       
-      {visiblePages[0] > 1 && (
+      {firstVisible > 1 && !isDisabled && (
         <>
-          <button 
-            className="paginator__btn" 
-            onClick={() => onPageChange(1)}
-          >
-            1
-          </button>
-          {visiblePages[0] > 2 && <span className="paginator__ellipsis">...</span>}
+          <button className="paginator__btn" onClick={() => onPageChange(1)}>1</button>
+          {firstVisible > 2 && <span className="paginator__ellipsis">...</span>}
         </>
       )}
       
@@ -58,21 +45,17 @@ export const Paginator: React.FC<PaginatorProps> = ({
         <button
           key={page}
           className={`paginator__btn ${page === currentPage ? 'paginator__btn--active' : ''}`}
-          onClick={() => onPageChange(page)}
+          disabled={isDisabled}
+          onClick={() => !isDisabled && onPageChange(page)}
         >
           {page}
         </button>
       ))}
       
-      {visiblePages[visiblePages.length - 1] < totalPages && (
+      {lastVisible < totalPages && !isDisabled && (
         <>
-          {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-            <span className="paginator__ellipsis">...</span>
-          )}
-          <button 
-            className="paginator__btn" 
-            onClick={() => onPageChange(totalPages)}
-          >
+          {lastVisible < totalPages - 1 && <span className="paginator__ellipsis">...</span>}
+          <button className="paginator__btn" onClick={() => onPageChange(totalPages)}>
             {totalPages}
           </button>
         </>
@@ -80,7 +63,7 @@ export const Paginator: React.FC<PaginatorProps> = ({
       
       <button
         className="paginator__btn"
-        disabled={currentPage === totalPages}
+        disabled={currentPage === totalPages || isDisabled}
         onClick={() => onPageChange(currentPage + 1)}
       >
         Next

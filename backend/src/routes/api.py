@@ -1,12 +1,11 @@
 import asyncio
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
 from ..models.schemas import (
     DeleteResponse,
     HealthResponse,
-    ImageItem,
     PaginatedHistory,
     PaginatedImages,
     PaginatedSearchResult,
@@ -149,7 +148,7 @@ async def search_images(
         page_size=page_size
     )
     
-    # Add to history (async/non-blocking) - save all results, not just current page
+    # Add to history (async/non-blocking)
     history_service.add_search(q.strip(), all_results, scores)
     
     return search_result

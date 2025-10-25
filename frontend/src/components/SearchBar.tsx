@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { useDebounce } from '../../hooks/useDebounce';
-import { api } from '../../services/api';
+import React, { useState, useEffect } from 'react';
+import { useDebounce } from '../hooks/useDebounce';
+import { api } from '../services/api';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -21,53 +20,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onQueryChange
 }) => {
   const [query, setQuery] = useState(initialValue);
-
-  // Sync internal state when initialValue changes
-  useEffect(() => {
-    setQuery(initialValue);
-  }, [initialValue]);
-
-  const updateQuery = (newQuery: string) => {
-    setQuery(newQuery);
-    onQueryChange?.(newQuery);
-  };
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const [isFromHistory, setIsFromHistory] = useState(false);
   const debouncedQuery = useDebounce(query, 150);
 
   useEffect(() => {
+    setQuery(initialValue);
+    if (initialValue !== query) {
+      setIsFromHistory(true);
+      setTimeout(() => setIsFromHistory(false), 100);
+    }
+  }, [initialValue]);
+
+  useEffect(() => {
     const fetchSuggestions = async () => {
-      if (debouncedQuery.length === 0) {
-        // Show recent searches when query is empty
-        try {
-          const results = await api.getSuggestions('');
-          setSuggestions(results.slice(0, 3));
-        } catch (error) {
-          setSuggestions([]);
-        }
-      } else {
-        // Show matching suggestions
-        try {
-          const results = await api.getSuggestions(debouncedQuery);
-          setSuggestions(results);
-        } catch (error) {
-          setSuggestions([]);
-        }
+      try {
+        const results = await api.getSuggestions(debouncedQuery);
+        setSuggestions(debouncedQuery ? results : results.slice(0, 3));
+      } catch {
+        setSuggestions([]);
       }
     };
     fetchSuggestions();
   }, [debouncedQuery]);
 
-  const handleFocus = async () => {
-    if (query === '') {
-      try {
-        const results = await api.getSuggestions('');
-        setSuggestions(results.slice(0, 3)); // Show only 3 recent results
-      } catch (error) {
-        setSuggestions([]);
-      }
-    }
-    setShowSuggestions(true);
+  const updateQuery = (newQuery: string) => {
+    setQuery(newQuery);
+    onQueryChange?.(newQuery);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -81,8 +62,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     updateQuery(value);
-    if (value === '' && onClear) {
-      onClear();
+    
+    if (!value.trim() && onClear && !isClearing) {
+      setIsClearing(true);
+      setTimeout(() => {
+        onClear();
+        setIsClearing(false);
+      }, 300);
     }
   };
 
@@ -90,6 +76,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     updateQuery(suggestion);
     onSearch(suggestion);
     setShowSuggestions(false);
+  };
+
+  const openHistoryModal = () => {
+    setShowSuggestions(false);
+    window.dispatchEvent(new CustomEvent('openHistoryModal'));
   };
 
   return (
@@ -103,20 +94,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             value={query}
             onChange={handleInputChange}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            onFocus={handleFocus}
+            onFocus={() => !isFromHistory && setShowSuggestions(true)}
           />
-          <button type="submit" className="search-button" disabled={isLoading}>
-            {isLoading ? (
+          <button type="submit" className="search-button" disabled={isLoading || isClearing}>
+            {isLoading || isClearing ? (
               <div className="spinner-small" />
             ) : (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
               </svg>
             )}
           </button>
         </div>
-        {showSuggestions && (
+        {showSuggestions && !isClearing && (
           <div className="search-suggestions">
             <div className="search-suggestions-scroll">
               {suggestions.length > 0 ? (
@@ -136,16 +127,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               )}
             </div>
             <div className="search-history-link">
-              <div 
-                className="search-history-btn"
-                onClick={() => {
-                  setShowSuggestions(false);
-                  window.dispatchEvent(new CustomEvent('openHistoryModal'));
-                }}
-              >
-                See more search history
+              <div className="search-history-btn" onClick={openHistoryModal}>
+                View Search History
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m9 18 6-6-6-6"/>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9,22 9,12 15,12 15,22" />
                 </svg>
               </div>
             </div>

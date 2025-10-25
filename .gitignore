@@ -52,3 +52,33 @@ coverage.xml
 
 # Docker
 .dockerignore
+
+# Exam - exclude non-essential files
+test-setup.bat
+*.md.backup
+.git/
+*.zip
+*.tar.gz
+*.rar
+docs/
+examples/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.test.tsx
+*.spec.js
+*.spec.ts
+*.spec.tsx
+jest.config.*
+vitest.config.*
+cypress/
+e2e/
+.github/
+.gitlab-ci.yml
+.travis.yml
+circleci/
+jenkins/
+*.lock
+yarn.lock
+pnpm-lock.yaml

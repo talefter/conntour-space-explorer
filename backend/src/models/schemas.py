@@ -1,16 +1,15 @@
 from typing import Dict, List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ImageItem(BaseModel):
     id: str
     nasa_id: str
     title: str
-    description: Optional[str] = None
-    date_created: Optional[str] = None
-    keywords: List[str] = []
+    description: str = ""
+    date_created: str = ""
+    keywords: List[str] = Field(default_factory=list)
     preview_url: str
-    full_url: Optional[str] = None
 
 
 class SearchResult(BaseModel):
@@ -28,32 +27,31 @@ class HistoryEntry(BaseModel):
     result_scores: Dict[str, float]
 
 
-class PaginatedHistory(BaseModel):
+class PaginationMixin(BaseModel):
+    total: int = Field(ge=0)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1, le=100)
+
+
+class PaginatedHistory(PaginationMixin):
     items: List[HistoryEntry]
-    total: int
-    page: int
-    page_size: int
+
+
+class PaginatedImages(PaginationMixin):
+    items: List[ImageItem]
+
+
+class PaginatedSearchResult(PaginationMixin):
+    query: str
+    items: List[ImageItem]
+    scores: Dict[str, float]
 
 
 class HealthResponse(BaseModel):
-    status: str
+    status: str = "ok"
 
 
 class DeleteResponse(BaseModel):
     deleted: str
 
 
-class PaginatedImages(BaseModel):
-    items: List[ImageItem]
-    total: int
-    page: int
-    page_size: int
-
-
-class PaginatedSearchResult(BaseModel):
-    query: str
-    items: List[ImageItem]
-    scores: Dict[str, float]
-    total: int
-    page: int
-    page_size: int
