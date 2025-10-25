@@ -1,24 +1,29 @@
-from typing import List
-
-from data.db import SpaceDB
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from models import Source
 
-app = FastAPI()
+from src.routes.api import router
+
+app = FastAPI(
+    title="Conntour Space Explorer API",
+    description="NASA image search and exploration API",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-db = SpaceDB()
+app.include_router(router)
 
-
-@app.get("/api/sources", response_model=List[Source])
-def get_sources():
-    sources = db.get_all_sources()
-    return sources
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)

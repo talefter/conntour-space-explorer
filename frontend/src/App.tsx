@@ -1,12 +1,18 @@
 import React from 'react';
-import Sources from './components/Sources';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowsePage } from './pages/BrowsePage';
+import './styles/main.css';
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Sources />
-    </div>
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<BrowsePage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 
-export default App; 
+export default App;
