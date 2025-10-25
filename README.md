@@ -1,6 +1,16 @@
 # Conntour Space Explorer
 
-NASA image search application with natural language queries and confidence scoring.
+Modern NASA image search application with BM25 search algorithm, confidence scoring, and dark mode UI.
+
+## Features
+
+- **BM25 Search Algorithm** with confidence scoring (0-100%)
+- **Natural language queries** with intelligent keyword matching
+- **Search history** with autocomplete suggestions
+- **Background loading** of 10,000+ NASA images
+- **Dark mode UI** with professional styling
+- **Responsive design** with smooth animations
+- **Docker containerization** for easy deployment
 
 ## Quick Start
 
@@ -31,33 +41,32 @@ conntour-space-explorer/
 │   └── Dockerfile
 ├── frontend/               # React + TypeScript frontend
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   │   ├── SearchBar.tsx
-│   │   │   ├── ImageGrid.tsx
-│   │   │   ├── ImageCard.tsx
-│   │   │   ├── ImageModal.tsx
-│   │   │   ├── HistoryModal.tsx
-│   │   │   ├── Paginator.tsx
-│   │   │   ├── Spinner.tsx
-│   │   │   └── index.ts    # Component exports
+│   │   ├── components/     # UI components
+│   │   │   ├── SearchBar.tsx      # Search with autocomplete
+│   │   │   ├── ImageGrid.tsx      # Responsive image grid
+│   │   │   ├── ImageCard.tsx      # Image cards with confidence
+│   │   │   ├── ImageModal.tsx     # Image detail popup
+│   │   │   ├── HistoryModal.tsx   # Search history table
+│   │   │   ├── Paginator.tsx      # Pagination controls
+│   │   │   └── Spinner.tsx        # Loading indicators
 │   │   ├── hooks/          # Custom React hooks
-│   │   │   ├── useDebounce.ts
-│   │   │   └── useAsyncOperation.ts
-│   │   ├── pages/          # Page components
-│   │   │   └── BrowsePage.tsx
-│   │   ├── services/       # API client
-│   │   │   └── api.ts
+│   │   │   ├── useDebounce.ts     # Input debouncing
+│   │   │   └── useAsyncOperation.ts # Async state management
+│   │   ├── pages/
+│   │   │   └── BrowsePage.tsx     # Main application page
+│   │   ├── services/
+│   │   │   └── api.ts             # API client
 │   │   ├── styles/         # SCSS stylesheets
-│   │   │   ├── main.scss
-│   │   │   ├── _SearchBar.scss
-│   │   │   ├── _ImageGrid.scss
-│   │   │   ├── _Modals.scss
-│   │   │   ├── _Paginator.scss
-│   │   │   └── _Spinner.scss
-│   │   ├── types/          # TypeScript definitions
-│   │   │   └── index.ts
-│   │   ├── utils/          # Utility functions
-│   │   │   └── dateUtils.ts
+│   │   │   ├── main.scss          # Global styles & variables
+│   │   │   ├── _SearchBar.scss    # Search component styles
+│   │   │   ├── _ImageGrid.scss    # Grid & card styles
+│   │   │   ├── _Modals.scss       # Modal popup styles
+│   │   │   ├── _Paginator.scss    # Pagination styles
+│   │   │   └── _Spinner.scss      # Loading spinner styles
+│   │   ├── types/
+│   │   │   └── index.ts           # TypeScript interfaces
+│   │   ├── utils/
+│   │   │   └── dateUtils.ts       # Date formatting utilities
 │   │   ├── App.tsx         # Root component
 │   │   └── main.tsx        # Application entry point
 │   ├── package.json        # Node.js dependencies
@@ -67,3 +76,8 @@ conntour-space-explorer/
 ├── docker-compose.yml      # Docker orchestration
 └── README.md
 ```
+
+## Technologies
+
+- **BM25 Search Algorithm** with confidence scoring (0-100%)
+- **Docker containerization** for easy deployment
