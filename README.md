@@ -1,17 +1,5 @@
 # Conntour Space Explorer
 
-Modern NASA image search application with BM25 search algorithm, confidence scoring, and dark mode UI.
-
-## Features
-
-- **BM25 Search Algorithm** with confidence scoring (0-100%)
-- **Natural language queries** with intelligent keyword matching
-- **Search history** with autocomplete suggestions
-- **Background loading** of 10,000+ NASA images
-- **Dark mode UI** with professional styling
-- **Responsive design** with smooth animations
-- **Docker containerization** for easy deployment
-
 ## Quick Start
 
 ```bash
