@@ -11,12 +11,19 @@ class HistoryService:
     def __init__(self, history_file: str = "data/history.json"):
         self.history_file = history_file
         self.history: List[HistoryEntry] = []
+        self._id_index: Dict[str, HistoryEntry] = {}
+        self._query_index: Dict[str, HistoryEntry] = {}
+        self._reversed_cache: List[HistoryEntry] = []
         self._load_history()
     
     def add_search(self, query: str, results: List[ImageItem], scores: Dict[str, float]) -> str:
         """Add search to history."""
         # Remove existing entry with same query to prevent duplicates
-        self.history = [e for e in self.history if e.query != query]
+        if query in self._query_index:
+            old_entry = self._query_index[query]
+            self.history.remove(old_entry)
+            del self._id_index[old_entry.id]
+            del self._query_index[query]
         
         entry = HistoryEntry(
             id=str(uuid.uuid4()),
@@ -28,13 +35,16 @@ class HistoryService:
         )
         
         self.history.append(entry)
+        self._id_index[entry.id] = entry
+        self._query_index[entry.query] = entry
+        self._reversed_cache = list(reversed(self.history))
         self._save_history()
         return entry.id
     
     def get_paginated(self, page: int = 1, page_size: int = 10) -> PaginatedHistory:
         """Get paginated history, most recent first."""
         start = (page - 1) * page_size
-        items = list(reversed(self.history))[start:start + page_size]
+        items = self._reversed_cache[start:start + page_size]
         
         return PaginatedHistory(
             items=items,
@@ -45,14 +55,14 @@ class HistoryService:
     
     def get_entry(self, history_id: str) -> Optional[HistoryEntry]:
         """Get history entry by ID."""
-        return next((e for e in self.history if e.id == history_id), None)
+        return self._id_index.get(history_id)
     
     def get_suggestions(self, query: str, limit: int = 5) -> List[str]:
         """Get search suggestions."""
         if not query.strip():
             seen = set()
             suggestions = []
-            for entry in reversed(self.history):
+            for entry in self._reversed_cache:
                 if entry.query not in seen and len(suggestions) < limit:
                     suggestions.append(entry.query)
                     seen.add(entry.query)
@@ -62,7 +72,7 @@ class HistoryService:
         suggestions = []
         seen = set()
         
-        for entry in reversed(self.history):
+        for entry in self._reversed_cache:
             if (entry.query.lower().startswith(query_lower) and 
                 entry.query not in seen and len(suggestions) < limit):
                 suggestions.append(entry.query)
@@ -72,10 +82,12 @@ class HistoryService:
     
     def delete_entry(self, history_id: str) -> bool:
         """Delete history entry."""
-        original_len = len(self.history)
-        self.history = [e for e in self.history if e.id != history_id]
-        
-        if len(self.history) < original_len:
+        if history_id in self._id_index:
+            entry = self._id_index[history_id]
+            self.history.remove(entry)
+            del self._id_index[history_id]
+            del self._query_index[entry.query]
+            self._reversed_cache = list(reversed(self.history))
             self._save_history()
             return True
         return False
@@ -89,6 +101,7 @@ class HistoryService:
             with open(self.history_file, 'r') as f:
                 data = json.load(f)
                 self.history = [HistoryEntry(**entry) for entry in data]
+                self._build_indexes()
         except Exception:
             self.history = []
     
@@ -100,3 +113,9 @@ class HistoryService:
                 json.dump([e.dict() for e in self.history], f, separators=(',', ':'))
         except Exception:
             pass
+    
+    def _build_indexes(self) -> None:
+        """Build indexes for fast lookups."""
+        self._id_index = {e.id: e for e in self.history}
+        self._query_index = {e.query: e for e in self.history}
+        self._reversed_cache = list(reversed(self.history))

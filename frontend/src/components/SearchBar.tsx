@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -30,17 +31,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     setQuery(initialValue);
   }, [initialValue]);
 
+  const debouncedQuery = useDebounce(query, 300);
+
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        const results = await api.getSuggestions(query);
+        const results = await api.getSuggestions(debouncedQuery);
         setSuggestions(results.slice(0, 5));
       } catch {
         setSuggestions([]);
       }
     };
     fetchSuggestions();
-  }, [query, refreshKey]);
+  }, [debouncedQuery, refreshKey]);
 
   const updateQuery = (newQuery: string) => {
     setQuery(newQuery);
