@@ -2,17 +2,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useAsyncOperation } from '../hooks/useAsyncOperation';
 import { api } from '../services/api';
 import { Paginator } from './Paginator';
-import type { PaginatedHistory } from '../types';
+import type { PaginatedHistory, SearchResult } from '../types';
 import { formatTimestamp } from '../utils/dateUtils';
 
 interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectQuery: (query: string) => void;
+  onSelectCachedResults?: (results: SearchResult) => void;
   onHistoryChange?: () => void;
 }
 
-export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onSelectQuery, onHistoryChange }) => {
+export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onSelectQuery, onSelectCachedResults, onHistoryChange }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isChangingPage, setIsChangingPage] = useState(false);
   
@@ -45,8 +46,17 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
     }
   };
 
-  const handleRerun = (query: string) => {
-    onSelectQuery(query);
+  const handleRerun = async (entry: any) => {
+    if (onSelectCachedResults) {
+      try {
+        const cachedResults = await api.getHistoryResults(entry.id);
+        onSelectCachedResults(cachedResults);
+        onClose();
+        return;
+      } catch {
+      }
+    }
+    onSelectQuery(entry.query);
     onClose();
   };
 
@@ -94,7 +104,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
                   <div 
                     key={entry.id} 
                     className="table-row"
-                    onClick={() => handleRerun(entry.query)}
+                    onClick={() => handleRerun(entry)}
                   >
                     <div className="col-query">
                       <span className="query-text">{entry.query}</span>
@@ -108,7 +118,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
                     <div className="col-actions">
                       <button
                         className="action-btn view-btn"
-                        onClick={() => handleRerun(entry.query)}
+                        onClick={() => handleRerun(entry)}
                         title="View results"
                       >
                         👁️

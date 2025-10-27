@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { useDebounce } from '../hooks/useDebounce';
 
@@ -31,41 +31,36 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     setQuery(initialValue);
   }, [initialValue]);
 
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 500);
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      try {
-        const results = await api.getSuggestions(debouncedQuery);
-        setSuggestions(results.slice(0, 5));
-      } catch {
-        setSuggestions([]);
-      }
-    };
-    fetchSuggestions();
-  }, [debouncedQuery, refreshKey]);
-
-  const updateQuery = (newQuery: string) => {
-    setQuery(newQuery);
-    onQueryChange?.(newQuery);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      onSearch(query.trim());
-      setShowSuggestions(false);
-      (e.target as HTMLFormElement).querySelector('input')?.blur();
-      setTimeout(async () => {
-        try {
-          const results = await api.getSuggestions('');
-          setSuggestions(results.slice(0, 5));
-        } catch {
-          setSuggestions([]);
-        }
-      }, 100);
+  const fetchSuggestions = async () => {
+    try {
+      const results = await api.getSuggestions(debouncedQuery);
+      setSuggestions(results.slice(0, 5));
+    } catch {
+      setSuggestions([]);
     }
   };
+  fetchSuggestions();
+}, [debouncedQuery]);
+const updateQuery = useCallback((newQuery: string) => {
+  setQuery(newQuery);
+}, []);
+
+useEffect(() => {
+  onQueryChange?.(debouncedQuery);
+}, [debouncedQuery, onQueryChange]);
+
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  if (query.trim()) {
+    onSearch(query.trim());
+    setShowSuggestions(false);
+    (e.target as HTMLFormElement).querySelector('input')?.blur();
+  }
+};
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

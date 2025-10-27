@@ -4,7 +4,7 @@ import { ImageGrid } from '../components/ImageGrid';
 import { SearchBar } from '../components/SearchBar';
 import { HistoryModal } from '../components/HistoryModal';
 import { Paginator } from '../components/Paginator';
-import type { PaginatedImages, PaginatedSearchResult } from '../types';
+import type { PaginatedImages, PaginatedSearchResult, SearchResult } from '../types';
 
 const PAGE_SIZE = 20;
 
@@ -17,6 +17,7 @@ export const BrowsePage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+  const [allCachedResults, setAllCachedResults] = useState<SearchResult | null>(null);
 
   const isSearchMode = !!searchData;
   const currentData = searchData || browseData;
@@ -49,6 +50,7 @@ export const BrowsePage: React.FC = () => {
     try {
       setLoading(true);
       setError('');
+      setAllCachedResults(null);
       const result = await api.search(searchQuery, page, PAGE_SIZE);
       setSearchData(result);
       setCurrentPage(page);
@@ -62,13 +64,28 @@ export const BrowsePage: React.FC = () => {
   const clearSearch = async () => {
     setLoading(true);
     setSearchData(null);
+    setAllCachedResults(null);
     setQuery('');
     setCurrentPage(1);
     await loadBrowseData(1);
   };
 
   const handlePageChange = (page: number) => {
-    if (isSearchMode) {
+    if (allCachedResults) {
+      const start = (page - 1) * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      const pageItems = allCachedResults.results.slice(start, end);
+      
+      setSearchData({
+        items: pageItems,
+        scores: allCachedResults.scores,
+        total: allCachedResults.results.length,
+        page: page,
+        page_size: PAGE_SIZE,
+        query: allCachedResults.query
+      });
+      setCurrentPage(page);
+    } else if (isSearchMode) {
       handleSearch(query, page);
     } else {
       setCurrentPage(page);
@@ -79,6 +96,22 @@ export const BrowsePage: React.FC = () => {
   const handleHistorySelect = (selectedQuery: string) => {
     setQuery(selectedQuery);
     handleSearch(selectedQuery, 1);
+  };
+
+  const handleCachedResults = (results: SearchResult) => {
+    setAllCachedResults(results);
+    const pageItems = results.results.slice(0, PAGE_SIZE);
+    
+    setSearchData({
+      items: pageItems,
+      scores: results.scores,
+      total: results.results.length,
+      page: 1,
+      page_size: PAGE_SIZE,
+      query: results.query
+    });
+    setQuery(results.query);
+    setCurrentPage(1);
   };
 
   const handleHistoryChange = () => {
@@ -127,6 +160,7 @@ export const BrowsePage: React.FC = () => {
         isOpen={showHistoryModal}
         onClose={() => setShowHistoryModal(false)}
         onSelectQuery={handleHistorySelect}
+        onSelectCachedResults={handleCachedResults}
         onHistoryChange={handleHistoryChange}
       />
     </div>
